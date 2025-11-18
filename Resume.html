@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- The title is simpler and will be updated dynamically by the script -->
+    <title>Professional Resume</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        /* Removed all @media print styles */
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'accent': '#4f46e5', /* Indigo 600 */
+                        'accent-dark': '#4338ca', /* Indigo 700 */
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-lg py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-extrabold text-accent">Resume Builder</h1>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pt-6 main-grid grid lg:grid-cols-2 gap-8">
+        
+        <!-- Input Form (Left/Top) -->
+        <div id="input-form" class="space-y-6 bg-white p-6 rounded-xl shadow-2xl border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-700 border-b pb-2">Your Details</h2>
+
+            <!-- Controls (Download Button) -->
+            <div id="controls" class="space-y-3">
+                <!-- Updated button to call the new downloadAsWord function -->
+                <button onclick="downloadAsWord()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-md">
+                    <svg class="w-5 h-5 inline-block mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download as Word (.doc)
+                </button>
+            </div>
+
+            <!-- Section 1: Contact Info -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">1. Contact & Summary</h3>
+                <input type="text" id="name" placeholder="Full Name" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <input type="text" id="title" placeholder="Professional Title" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <input type="email" id="email" placeholder="Email" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <input type="text" id="phone" placeholder="Phone" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <input type="url" id="linkedin" placeholder="LinkedIn URL" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <textarea id="summary" placeholder="Professional Summary (3-4 lines)" oninput="updateResume()" rows="4" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent"></textarea>
+            </div>
+
+            <!-- Section 2: Key Strengths (NEW) -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">2. Key Strengths</h3>
+                <textarea id="key-strengths" placeholder="List your key strengths, separated by commas (e.g., Leadership, Agile Methodology, Problem Solving)" oninput="updateResume()" rows="3" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent"></textarea>
+            </div>
+            
+            <!-- Section 3: Experience -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">3. Work Experience</h3>
+                <div id="experience-container" class="space-y-6">
+                    <div class="experience-entry p-3 border-l-4 border-accent bg-white rounded-md shadow-sm">
+                        <input type="text" placeholder="Job Title" class="job-title w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <input type="text" placeholder="Company, Location" class="job-company w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <input type="text" placeholder="Start Date - End Date (e.g., Jan 2023 - Present)" class="job-dates w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <textarea placeholder="Key responsibilities and achievements (use bullet points or hyphens)" class="job-description w-full p-1 mt-2 border rounded-md" rows="3" oninput="updateResume()"></textarea>
+                        <button onclick="removeEntry(this)" class="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
+                    </div>
+                </div>
+                <button onclick="addEntry('experience')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition duration-200">+ Add Experience</button>
+            </div>
+
+            <!-- Section 4: Education -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">4. Education</h3>
+                <div id="education-container" class="space-y-6">
+                    <div class="education-entry p-3 border-l-4 border-accent bg-white rounded-md shadow-sm">
+                        <input type="text" placeholder="Degree/Certification" class="edu-degree w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <input type="text" placeholder="Institution Name, City" class="edu-institution w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <input type="text" placeholder="Graduation Year (e.g., May 2025)" class="edu-year w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <button onclick="removeEntry(this)" class="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
+                    </div>
+                </div>
+                <button onclick="addEntry('education')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition duration-200">+ Add Education</button>
+            </div>
+            
+            <!-- Section 5: Certifications (NEW) -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">5. Certifications</h3>
+                <div id="certifications-container" class="space-y-6">
+                    <div class="certification-entry p-3 border-l-4 border-accent bg-white rounded-md shadow-sm">
+                        <input type="text" placeholder="Certificate Name (e.g., AWS Certified Developer)" class="cert-name w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <input type="text" placeholder="Issuing Organization" class="cert-org w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <input type="text" placeholder="Completion Year" class="cert-year w-full p-1 border-b mb-1" oninput="updateResume()">
+                        <button onclick="removeEntry(this)" class="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
+                    </div>
+                </div>
+                <button onclick="addEntry('certifications')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition duration-200">+ Add Certification</button>
+            </div>
+
+            <!-- Section 6: Skills -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">6. Technical Skills</h3>
+                <textarea id="skills" placeholder="List your skills, separated by commas (e.g., HTML, CSS, JavaScript, Angular)" oninput="updateResume()" rows="3" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent"></textarea>
+            </div>
+
+            <!-- Section 7: Personal Details (NEW) -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">7. Personal Details</h3>
+                <input type="text" id="dob" placeholder="Date of Birth (e.g., 01/01/1990)" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <input type="text" id="nationality" placeholder="Nationality (e.g., Indian)" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+                <input type="text" id="marital-status" placeholder="Marital Status (e.g., Single)" oninput="updateResume()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent">
+            </div>
+
+            <!-- Section 8: Declaration (NEW) -->
+            <div class="space-y-3 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="font-semibold text-xl text-accent">8. Declaration</h3>
+                <textarea id="declaration" placeholder="Type your declaration text here." oninput="updateResume()" rows="4" class="w-full p-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent"></textarea>
+            </div>
+        </div>
+
+        <!-- Resume Preview (Right/Bottom) -->
+        <div id="resume-preview" class="lg:sticky lg:top-10 h-min-screen">
+            <div id="resume-output" class="bg-white p-8 sm:p-12 border border-gray-300 rounded-xl shadow-2xl min-h-full">
+                <!-- Resume Content Renders Here -->
+                <p class="text-center text-gray-500">Start filling out the form to generate your resume preview.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Helper function to create a new input entry (Experience, Education, or Certification)
+        function addEntry(type) {
+            const container = document.getElementById(`${type}-container`);
+            const div = document.createElement('div');
+            div.className = `${type}-entry p-3 border-l-4 border-accent bg-white rounded-md shadow-sm`;
+
+            if (type === 'experience') {
+                div.innerHTML = `
+                    <input type="text" placeholder="Job Title" class="job-title w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <input type="text" placeholder="Company, Location" class="job-company w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <input type="text" placeholder="Start Date - End Date (e.g., Jan 2023 - Present)" class="job-dates w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <textarea placeholder="Key responsibilities and achievements (use bullet points or hyphens)" class="job-description w-full p-1 mt-2 border rounded-md" rows="3" oninput="updateResume()"></textarea>
+                    <button onclick="removeEntry(this)" class="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
+                `;
+            } else if (type === 'education') {
+                 div.innerHTML = `
+                    <input type="text" placeholder="Degree/Certification" class="edu-degree w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <input type="text" placeholder="Institution Name, City" class="edu-institution w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <input type="text" placeholder="Graduation Year (e.g., May 2025)" class="edu-year w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <button onclick="removeEntry(this)" class="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
+                `;
+            } else if (type === 'certifications') {
+                div.innerHTML = `
+                    <input type="text" placeholder="Certificate Name (e.g., AWS Certified Developer)" class="cert-name w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <input type="text" placeholder="Issuing Organization" class="cert-org w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <input type="text" placeholder="Completion Year" class="cert-year w-full p-1 border-b mb-1" oninput="updateResume()">
+                    <button onclick="removeEntry(this)" class="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
+                `;
+            }
+            container.appendChild(div);
+            updateResume();
+        }
+
+        // Helper function to remove an input entry
+        function removeEntry(button) {
+            const entry = button.parentElement;
+            entry.remove();
+            updateResume();
+        }
+
+        /**
+         * Parses list-like text (hyphens, asterisks) into an HTML unordered list.
+         */
+        function parseDescription(text) {
+             const lines = text.split('\n');
+             const listItems = lines.map(line => {
+                const trimmed = line.trim();
+                // Check for bullet prefixes (hyphen or asterisk)
+                if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+                    // Extract content after the prefix and trim
+                    return `<li>${trimmed.substring(1).trim()}</li>`;
+                }
+                // If it's a non-bullet line, keep it as text
+                return trimmed;
+            }).filter(item => item.length > 0); // Filter out empty lines
+
+            // If any list items were generated, wrap them in a <ul>
+            if (listItems.some(item => item.startsWith('<li>'))) {
+                return `<ul class="list-disc ml-5 text-gray-700 text-sm space-y-0.5">${listItems.join('')}</ul>`;
+            } else {
+                // Otherwise, return the text as a simple paragraph
+                return `<p class="text-gray-700 text-sm">${listItems.join('<br>')}</p>`;
+            }
+        }
+
+        /**
+         * Main function to render the resume content based on form inputs.
+         */
+        function updateResume() {
+            const output = document.getElementById('resume-output');
+            
+            // --- 1. GET ALL INPUTS ---
+            const name = document.getElementById('name').value.trim() || 'Your Full Name';
+            
+            // Set the document title dynamically to the resume owner's name
+            document.title = `${name}'s Professional Resume`; 
+
+            const title = document.getElementById('title').value.trim() || 'Professional Title';
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const linkedin = document.getElementById('linkedin').value.trim();
+            const summary = document.getElementById('summary').value.trim();
+            const skillsVal = document.getElementById('skills').value.trim();
+            const strengthsVal = document.getElementById('key-strengths').value.trim();
+            const dob = document.getElementById('dob').value.trim();
+            const nationality = document.getElementById('nationality').value.trim();
+            const maritalStatus = document.getElementById('marital-status').value.trim();
+            const declaration = document.getElementById('declaration').value.trim();
+            
+            // --- 2. FORMAT CONTACT LINE ---
+            const contacts = [];
+            if (email) contacts.push(`<a href="mailto:${email}" class="hover:text-accent-dark">${email}</a>`);
+            if (phone) contacts.push(`<span>${phone}</span>`);
+            if (linkedin) contacts.push(`<a href="${linkedin}" target="_blank" class="hover:text-accent-dark">${linkedin.replace('https://www.', '').replace('http://www.', '')}</a>`);
+            const contactLine = contacts.join(' <span class="text-gray-400">|</span> ');
+
+            // --- 3. BUILD RESUME HTML ---
+            let resumeHTML = `
+                <!-- Header -->
+                <div class="text-center pb-4 mb-4 border-b-2 border-accent">
+                    <h1 class="text-4xl font-extrabold text-gray-800">${name}</h1>
+                    <p class="text-xl text-gray-600 mt-1">${title}</p>
+                    <div class="text-sm text-gray-500 mt-2">${contactLine}</div>
+                </div>
+            `;
+            
+            // 4. Professional Summary Section
+            if (summary) {
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">PROFESSIONAL SUMMARY</h3>
+                        <p class="text-gray-700 whitespace-pre-line">${summary}</p>
+                    </section>
+                `;
+            }
+
+            // 5. Key Strengths Section
+            if (strengthsVal) {
+                const strengthItems = strengthsVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                const strengthChips = strengthItems.map(strength => 
+                    `<span style="display: inline-block; background-color: #4f46e5; color: white; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 9999px; margin: 4px;">${strength}</span>`
+                ).join(' ');
+
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">KEY STRENGTHS</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            ${strengthChips}
+                        </div>
+                    </section>
+                `;
+            }
+
+            // 6. Experience Section
+            const experienceEntries = Array.from(document.querySelectorAll('.experience-entry'));
+            if (experienceEntries.length > 0 && experienceEntries.some(e => e.querySelector('.job-title').value.trim())) {
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">EXPERIENCE</h3>
+                        <div class="space-y-4">
+                `;
+                experienceEntries.forEach(entry => {
+                    const titleVal = entry.querySelector('.job-title').value.trim();
+                    const companyVal = entry.querySelector('.job-company').value.trim();
+                    const datesVal = entry.querySelector('.job-dates').value.trim();
+                    const descVal = entry.querySelector('.job-description').value.trim();
+
+                    if (titleVal) {
+                        resumeHTML += `
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <h4 class="font-semibold text-gray-800" style="font-weight: 600;">${titleVal}</h4>
+                                    <span class="text-sm text-gray-500" style="font-size: 0.875rem; color: #6b7280;">${datesVal}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-1" style="font-size: 0.875rem; color: #4b5563;">${companyVal}</p>
+                                ${parseDescription(descVal)}
+                            </div>
+                        `;
+                    }
+                });
+                resumeHTML += `</div></section>`;
+            }
+
+            // 7. Education Section
+            const educationEntries = Array.from(document.querySelectorAll('.education-entry'));
+            if (educationEntries.length > 0 && educationEntries.some(e => e.querySelector('.edu-degree').value.trim())) {
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">EDUCATION</h3>
+                        <div class="space-y-3">
+                `;
+                educationEntries.forEach(entry => {
+                    const degreeVal = entry.querySelector('.edu-degree').value.trim();
+                    const institutionVal = entry.querySelector('.edu-institution').value.trim();
+                    const yearVal = entry.querySelector('.edu-year').value.trim();
+
+                    if (degreeVal) {
+                        resumeHTML += `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800" style="font-weight: 600;">${degreeVal}</h4>
+                                    <p class="text-sm text-gray-600" style="font-size: 0.875rem; color: #4b5563;">${institutionVal}</p>
+                                </div>
+                                <span class="text-sm text-gray-500" style="font-size: 0.875rem; color: #6b7280;">${yearVal}</span>
+                            </div>
+                        `;
+                    }
+                });
+                resumeHTML += `</div></section>`;
+            }
+
+            // 8. Certifications Section (NEW)
+            const certificationEntries = Array.from(document.querySelectorAll('.certification-entry'));
+            if (certificationEntries.length > 0 && certificationEntries.some(e => e.querySelector('.cert-name').value.trim())) {
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">CERTIFICATIONS</h3>
+                        <div class="space-y-3">
+                `;
+                certificationEntries.forEach(entry => {
+                    const nameVal = entry.querySelector('.cert-name').value.trim();
+                    const orgVal = entry.querySelector('.cert-org').value.trim();
+                    const yearVal = entry.querySelector('.cert-year').value.trim();
+
+                    if (nameVal) {
+                        resumeHTML += `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800" style="font-weight: 600;">${nameVal}</h4>
+                                    <p class="text-sm text-gray-600" style="font-size: 0.875rem; color: #4b5563;">${orgVal}</p>
+                                </div>
+                                <span class="text-sm text-gray-500" style="font-size: 0.875rem; color: #6b7280;">${yearVal}</span>
+                            </div>
+                        `;
+                    }
+                });
+                resumeHTML += `</div></section>`;
+            }
+
+            // 9. Skills Section
+            if (skillsVal) {
+                const skillItems = skillsVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                
+                // Display skills as chips
+                const skillChips = skillItems.map(skill => 
+                    `<span style="display: inline-block; background-color: #e5e7eb; color: #4b5563; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 9999px; margin: 4px;">${skill}</span>`
+                ).join(' ');
+
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">TECHNICAL SKILLS</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            ${skillChips}
+                        </div>
+                    </section>
+                `;
+            }
+
+            // 10. Personal Details Section (NEW)
+            if (dob || nationality || maritalStatus) {
+                resumeHTML += `
+                    <section style="margin-bottom: 1.5rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">PERSONAL DETAILS</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.25rem 1rem; font-size: 0.875rem; color: #4b5563;">
+                            ${dob ? `<div style="font-weight: 600;">Date of Birth:</div> <div>${dob}</div>` : ''}
+                            ${nationality ? `<div style="font-weight: 600;">Nationality:</div> <div>${nationality}</div>` : ''}
+                            ${maritalStatus ? `<div style="font-weight: 600;">Marital Status:</div> <div>${maritalStatus}</div>` : ''}
+                        </div>
+                    </section>
+                `;
+            }
+
+            // 11. Declaration Section (NEW)
+            if (declaration) {
+                resumeHTML += `
+                    <section style="margin-top: 2rem;">
+                        <h3 class="text-lg font-bold text-accent border-b border-gray-300 pb-1 mb-2" style="border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; color: #4f46e5;">DECLARATION</h3>
+                        <p class="text-xs italic text-gray-600 mb-6" style="font-size: 0.75rem; font-style: italic; color: #4b5563;">${declaration}</p>
+                        <!-- Space for Signature and Date -->
+                        <div style="display: flex; justify-content: space-between; margin-top: 3rem; font-size: 0.875rem;">
+                            <div>Date: __________________</div>
+                            <div>(Signature)</div>
+                        </div>
+                        <div style="text-align: right; margin-top: 0.5rem; font-size: 0.875rem; font-weight: 600;">${name}</div>
+                    </section>
+                `;
+            }
+
+            // 12. Final Render
+            output.innerHTML = resumeHTML;
+        }
+
+        /**
+         * Function to download the resume as a Microsoft Word (.doc) file.
+         */
+        function downloadAsWord() {
+            const outputElement = document.getElementById('resume-output');
+            const name = document.getElementById('name').value.trim() || 'Professional_Resume';
+            
+            // 1. Get the raw HTML content of the resume
+            const content = outputElement.innerHTML;
+
+            // 2. Wrap the HTML content in a full document structure for MS Word compatibility
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <!-- Basic inline styles for Word to render the structure correctly -->
+                    <style>
+                        body { font-family: 'Inter', sans-serif; margin: 40px; }
+                        h1 { font-size: 28px; margin-bottom: 5px; }
+                        h3 { font-size: 18px; margin-top: 20px; color: #4f46e5; border-bottom: 2px solid #4f46e5; padding-bottom: 4px; margin-bottom: 8px; }
+                        p { font-size: 14px; line-height: 1.5; margin-bottom: 5px; }
+                        ul { list-style-type: disc; margin-left: 20px; font-size: 14px; }
+                        li { margin-bottom: 3px; }
+                        section { margin-bottom: 20px; }
+                        .text-center { text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <!-- Use the innerHTML from the preview -->
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        ${content}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // 3. Create a Blob from the HTML content with the correct MIME type for MS Word (.doc)
+            const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
+            
+            // 4. Create a temporary link element and trigger the download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${name.replace(/\s/g, '_')}_Resume.doc`;
+
+            // Append to body, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Clean up the URL object
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Initialize: Load initial content and pre-fill data on page load
+        window.onload = function() {
+            console.log('Resume Builder script initializing and loading demo data...');
+            // --- Pre-fill Demo Data ---
+            document.getElementById('name').value = 'Swara Kadam';
+            document.getElementById('email').value = 'kadamswaraa@gmail.com';
+            document.getElementById('linkedin').value = 'www.linkedin.com/in/swaraa-kadam';
+            document.getElementById('title').value = 'Full Stack Developer | SAP ABAP Specialist';
+            document.getElementById('summary').value = "Highly skilled and motivated developer with expertise spanning full-stack web technologies (Angular, Node.js, MongoDB) and specialized programming in SAP ABAP, C, C++, and Java. Proven ability to build responsive applications and manage complex database solutions. Eager to contribute technical proficiency to a dynamic development team.";
+            
+            // New Section Pre-fills
+            document.getElementById('key-strengths').value = 'Leadership, Problem Solving, Agile Methodology, Full-Stack Development, Database Management, Attention to Detail';
+            document.getElementById('skills').value = 'HTML, CSS, JavaScript, Angular, TypeScript, Node.js, MongoDB, SAP ABAP, C++, Java';
+            document.getElementById('dob').value = '01/01/1995';
+            document.getElementById('nationality').value = 'Indian';
+            document.getElementById('marital-status').value = 'Single';
+            document.getElementById('declaration').value = 'I hereby declare that all the information furnished above is true and correct to the best of my knowledge and belief.';
+            
+            // Pre-fill Experience
+            const expContainer = document.querySelector('.experience-entry');
+            if(expContainer) {
+                expContainer.querySelector('.job-title').value = 'Full Stack Developer';
+                expContainer.querySelector('.job-company').value = 'Tech Innovators Inc., Mumbai';
+                expContainer.querySelector('.job-dates').value = 'Jan 2023 - Present';
+                expContainer.querySelector('.job-description').value = `- Led the development of a real-time analytics dashboard using Angular and Node.js.
+- Reduced database query latency by 30% through optimized MongoDB indexing.
+- Implemented responsive design across all major application interfaces.`;
+            }
+
+            // Pre-fill Education
+            const educationContainers = document.querySelectorAll('.education-entry');
+            if(educationContainers.length > 0) {
+                educationContainers[0].querySelector('.edu-degree').value = 'B.Tech in Computer Science';
+                educationContainers[0].querySelector('.edu-institution').value = 'University of Technology, Pune';
+                educationContainers[0].querySelector('.edu-year').value = '2019 - 2023';
+            }
+
+            // Add a default Certification entry and pre-fill it
+            const certContainers = document.querySelectorAll('.certification-entry');
+            if(certContainers.length > 0) {
+                certContainers[0].querySelector('.cert-name').value = 'Certified SAP ABAP Consultant';
+                certContainers[0].querySelector('.cert-org').value = 'SAP Education';
+                certContainers[0].querySelector('.cert-year').value = '2024';
+            } else {
+                addEntry('certifications'); // Add if it was removed in a previous session
+                const newCertContainer = document.querySelectorAll('.certification-entry')[0];
+                if(newCertContainer) {
+                    newCertContainer.querySelector('.cert-name').value = 'Certified SAP ABAP Consultant';
+                    newCertContainer.querySelector('.cert-org').value = 'SAP Education';
+                    newCertContainer.querySelector('.cert-year').value = '2024';
+                }
+            }
+
+
+            // Update the preview with the pre-filled data
+            updateResume();
+            console.log('Resume successfully rendered with pre-filled demo data.');
+        };
+
+    </script>
+</body>
+</html>
